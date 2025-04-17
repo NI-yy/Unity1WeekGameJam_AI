@@ -1,35 +1,31 @@
-using UnityEngine;
-using UnityEngine.Scripting.APIUpdating;
+﻿using UnityEngine;
+using R3;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed = 5f; // プレイヤーの移動速度 
     [SerializeField] private float warpDistance = 5f; // ワープ距離
-
-    [SerializeField] private GameObject bulletPrefab;
-    [SerializeField] private float bulletSpeed = 20f;     // 弾の速度
-    [SerializeField] private Transform shootPoint;        // 発射位置（空の子オブジェクトを設定すると良い）
+    [SerializeField] private float parryActiveTime = 0.5f;
+    [SerializeField] private float parryCoolTime = 0.5f;
+    [SerializeField] private GameObject parrtyArea;
 
     private float hAxis; // 水平方向の入力
     private float vAxis; // 垂直方向の入力
 
-    private Vector3 moveVector; // 移動ベクトル
+    private Vector3 moveVector;
 
     private bool dashButtonDown;
+    private bool parryButtonDown;
 
-    private Rigidbody rigidbody;
     private bool isDodge = false;
-
-    void Start()
-    {
-        rigidbody = GetComponent<Rigidbody>();
-    }
+    private bool canParry = true;
 
     void Update()
     {
         GetInput();
         Move();
         Turn();
+        TriggerParry();
         Dash();
     }
 
@@ -37,6 +33,7 @@ public class PlayerController : MonoBehaviour
     {
         hAxis = Input.GetAxisRaw("Horizontal"); // 水平方向の入力を取得
         vAxis = Input.GetAxisRaw("Vertical"); // 垂直方向の入力を取得
+        parryButtonDown = Input.GetMouseButtonDown(0);
         dashButtonDown = Input.GetMouseButtonDown(1);
     }
 
@@ -44,7 +41,6 @@ public class PlayerController : MonoBehaviour
     {
         // 入力に基づいて移動ベクトルを計算
         moveVector = new Vector3(hAxis, 0, vAxis).normalized;
-
         // 通常の移動処理
         transform.position += moveVector * speed * Time.deltaTime;
     }
@@ -53,29 +49,36 @@ public class PlayerController : MonoBehaviour
         transform.LookAt(transform.position + moveVector);
     }
 
+    private void TriggerParry()
+    {
+        if (parryButtonDown && canParry)
+        {
+            parrtyArea.SetActive(true);
+            canParry = false;
+
+            // 0.5秒後に判定オブジェクトを非アクティブ化
+            Observable.Timer(System.TimeSpan.FromSeconds(parryActiveTime))
+                .Subscribe(_ => parrtyArea.SetActive(false))
+                .AddTo(this);
+
+            // 30フレーム後に再び入力を受け付ける
+            Observable.TimerFrame(30)
+                .Subscribe(_ => canParry = true)
+                .AddTo(this);
+        }
+    }
+
     private void Dash(){
         if(dashButtonDown && moveVector != Vector3.zero && !isDodge){
             speed *= 2;
             isDodge = true;
 
-            Invoke("DashOut", 0.4f); // 0.5秒後にDashOutメソッドを呼び出す
+            Invoke("DashOut", 0.4f); // hoge秒後にDashOutメソッドを呼び出す
         }
     }
 
     private void DashOut(){
         speed *= 0.5f;
         isDodge = false;
-    }
-
-    private void Attack(){
-        // 弾を生成
-        GameObject bullet = Instantiate(bulletPrefab, shootPoint.position, Quaternion.identity);
-
-        // Rigidbodyを取得し、プレイヤーの向いている方向に力を加える
-        Rigidbody rb = bullet.GetComponent<Rigidbody>();
-        if (rb != null)
-        {
-            rb.AddForce(this.transform.forward * bulletSpeed); //キャラクターが向いている方向に弾に力を加える
-        }
     }
 }
