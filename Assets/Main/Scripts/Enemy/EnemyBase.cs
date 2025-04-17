@@ -1,19 +1,24 @@
 ﻿using System;
 using UnityEngine;
 using R3;
+using static UnityEngine.EventSystems.EventTrigger;
 
 // protected: そのクラス自身と派生クラスからのみ参照可能
 // virtual: オーバーライド可能
 
 public class EnemyBase : MonoBehaviour
 {
+    public Observable<EnemyBase> onParriedAndEnemyDestroy => _onParriedAndEnemyDestroy;
+    private Subject<EnemyBase> _onParriedAndEnemyDestroy = new Subject<EnemyBase>();
+
+
     [SerializeField] protected GameObject attackArea;
     [SerializeField] protected float attackInterval = 2f;
     [SerializeField] protected float attackDuration = 0.3f;
 
     protected bool playerInRange = false;
-    private IDisposable attackLoop;
 
+    private IDisposable attackLoop;
     private EnemyAttackArea enemyAttackArea;
 
     protected virtual void Awake()
@@ -23,12 +28,12 @@ public class EnemyBase : MonoBehaviour
         if(enemyAttackArea != null)
         {
             enemyAttackArea.OnParried
-                .Subscribe(_ => OnParried())
+                .Subscribe(_ => OnParriedAndDestroy())
                 .AddTo(this); // GameObjectと紐づけて破棄も自動化
         }
         else
         {
-            Debug.LogError("EnemyAttackArea is not found.");
+            Debug.LogError("EnemyAttackArea is not found. Please Attach.");
         }
     }
 
@@ -37,9 +42,13 @@ public class EnemyBase : MonoBehaviour
         SetupAttackLoop();
     }
 
-    private void OnParried()
+    private void OnParriedAndDestroy()
     {
-        Destroy(this.gameObject);
+        _onParriedAndEnemyDestroy.OnNext(this);
+        _onParriedAndEnemyDestroy.OnCompleted();
+
+        _onParriedAndEnemyDestroy.Dispose();
+
     }
 
     private void SetupAttackLoop()

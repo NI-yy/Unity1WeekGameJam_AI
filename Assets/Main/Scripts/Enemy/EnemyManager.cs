@@ -1,18 +1,26 @@
-﻿using UnityEngine;
+﻿using ObservableCollections;
+using System.Collections.Generic;
+using UnityEngine;
 using R3;
-using ObservableCollections;
 
 public class EnemyManager : MonoBehaviour
 {
     public ObservableList<EnemyBase> enemies = new ObservableList<EnemyBase>();
 
-    public void AddEnemy(EnemyBase enemy)
+
+    private void Start()
     {
-        enemies.Add(enemy);
+        foreach (EnemyBase enemy in FindObjectsByType<EnemyBase>(FindObjectsSortMode.None))
+        {
+            enemies.Add(enemy);
+
+            // OnDestroyされたことを購読してリストから除く
+            enemy.onParriedAndEnemyDestroy.Subscribe(e =>
+            {
+                enemies.Remove(e);
+                Destroy(e.gameObject);
+            });
+        }
     }
 
-    public void RemoveEnemy(EnemyBase enemy)
-    {
-        enemies.Remove(enemy);
-    }
 }
