@@ -6,7 +6,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float speed = 5f; // プレイヤーの移動速度 
     [SerializeField] private float warpDistance = 5f; // ワープ距離
     [SerializeField] private float parryActiveTime = 0.5f;
-    [SerializeField] private float parryCoolTime = 0.5f;
+    [SerializeField] private int parryCoolFrame = 30;
     [SerializeField] private GameObject parrtyArea;
 
     private float hAxis; // 水平方向の入力
@@ -62,7 +62,7 @@ public class PlayerController : MonoBehaviour
                 .AddTo(this);
 
             // 30フレーム後に再び入力を受け付ける
-            Observable.TimerFrame(30)
+            Observable.TimerFrame(parryCoolFrame)
                 .Subscribe(_ => canParry = true)
                 .AddTo(this);
         }

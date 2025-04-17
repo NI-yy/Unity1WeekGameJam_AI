@@ -11,11 +11,11 @@ public class NormalEnemy : EnemyBase
 
     protected override void OnPlayerEnter()
     {
-        Debug.Log("プレイヤーを見つけた！");
+
     }
 
     protected override void OnPlayerExit()
     {
-        Debug.Log("プレイヤーを見失った");
+
     }
 }

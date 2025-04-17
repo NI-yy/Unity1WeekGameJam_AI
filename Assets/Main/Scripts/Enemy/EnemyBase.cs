@@ -14,9 +14,32 @@ public class EnemyBase : MonoBehaviour
     protected bool playerInRange = false;
     private IDisposable attackLoop;
 
+    private EnemyAttackArea enemyAttackArea;
+
+    protected virtual void Awake()
+    {
+        enemyAttackArea = attackArea.GetComponent<EnemyAttackArea>();
+
+        if(enemyAttackArea != null)
+        {
+            enemyAttackArea.OnParried
+                .Subscribe(_ => OnParried())
+                .AddTo(this); // GameObjectと紐づけて破棄も自動化
+        }
+        else
+        {
+            Debug.LogError("EnemyAttackArea is not found.");
+        }
+    }
+
     protected virtual void Start()
     {
         SetupAttackLoop();
+    }
+
+    private void OnParried()
+    {
+        Destroy(this.gameObject);
     }
 
     private void SetupAttackLoop()
@@ -48,6 +71,8 @@ public class EnemyBase : MonoBehaviour
 
     private void PerformAttack()
     {
+        CompositeDisposable disposable;
+        disposable = new CompositeDisposable();
         attackArea.SetActive(true);
         OnAttackStart(); // 拡張（アニメーションなど）
 
