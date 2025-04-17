@@ -5,7 +5,7 @@ public class GameLifetimeScope : LifetimeScope
 {
     protected override void Configure(IContainerBuilder builder)
     {
-        builder.RegisterComponentInHierarchy<EnemyBase>();
-        builder.RegisterEntryPoint<EnemyManager>();
+        builder.RegisterComponentInHierarchy<EnemyManager>();
+        builder.RegisterComponentInHierarchy<GameManager>();
     }
 }
