@@ -4,7 +4,6 @@ using R3;
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed = 5f; // プレイヤーの移動速度 
-    [SerializeField] private float warpDistance = 5f; // ワープ距離
     [SerializeField] private float parryActiveTime = 0.5f;
     [SerializeField] private int parryCoolFrame = 30;
     [SerializeField] private GameObject parrtyArea;
