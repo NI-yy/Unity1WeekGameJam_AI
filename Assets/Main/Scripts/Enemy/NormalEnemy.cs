@@ -14,17 +14,19 @@ public class NormalEnemy : EnemyBase
     [SerializeField] private GameObject attackCicleEnd;
 
     private Vector3 initPos;
+    private Vector3 initAttackCircleScale;
     private bool isMoving = false;
     private GameObject playerObj;
 
-    private CancellationTokenSource cancellationTokenSource;
+    private CancellationTokenSource cancellationTokenSource_move;
 
     protected override void Start()
     {
         base.Start();
 
-        cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource_move = new CancellationTokenSource();
         initPos = transform.localPosition;
+        initAttackCircleScale = attackCicle.transform.localScale;
         playerObj = GameObject.FindGameObjectWithTag("Player");
     }
 
@@ -48,7 +50,7 @@ public class NormalEnemy : EnemyBase
     {
         isMoving = true;
         Vector3 destination = ExtractRandomPos(initPos, maxMoveRadius);
-        CancellationToken token_move = cancellationTokenSource.Token;
+        CancellationToken token_move = cancellationTokenSource_move.Token;
 
         transform.LookAt(destination);
         await transform.DOLocalMove(destination, moveSpeed).SetEase(Ease.Linear)
@@ -74,39 +76,48 @@ public class NormalEnemy : EnemyBase
     protected override void OnPlayerEnter()
     {
         base.OnPlayerEnter();
-        cancellationTokenSource?.Cancel();
-        cancellationTokenSource?.Dispose();
+        cancellationTokenSource_move?.Cancel();
+        cancellationTokenSource_move?.Dispose();
     }
 
     protected override void OnPlayerExit()
     {
         base.OnPlayerExit();
         isMoving = false;
-        cancellationTokenSource = new CancellationTokenSource();
+        cancellationTokenSource_move = new CancellationTokenSource();
         Debug.Log("再開");
     }
 
-    protected override void OnAttackIntervalStart()
+    protected override void OnAttackIntervalStart(CancellationToken token_attack)
     {
         base.OnAttackIntervalStart();
         Debug.Log("IntervalStart");
+
+        attackCicle.transform.localScale = initAttackCircleScale;
+        attackCicle.SetActive(true);
+        attackCicleEnd.SetActive(true);
+        attackCicle.transform.DOScale(attackCicleEnd.transform.localScale, attackInterval)
+            .SetEase(Ease.Linear)
+            .ToUniTask(cancellationToken: token_attack);
     }
 
     protected override void OnAttackIntervalEnd()
     {
-        base.OnAttackIntervalStart();
+        base.OnAttackIntervalEnd();
+        attackCicle.SetActive(false);
+        attackCicleEnd.SetActive(false);
         Debug.Log("IntervalEnd");
     }
 
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        cancellationTokenSource?.Dispose();
+        cancellationTokenSource_move?.Dispose();
     }
 
     protected override void OnApplicationQuit()
     {
         base.OnApplicationQuit();
-        cancellationTokenSource?.Dispose();
+        cancellationTokenSource_move?.Dispose();
     }
 }

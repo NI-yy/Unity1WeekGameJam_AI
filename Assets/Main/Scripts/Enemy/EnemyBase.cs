@@ -22,7 +22,7 @@ public class EnemyBase : MonoBehaviour
 
     private EnemyAttackArea enemyAttackArea;
 
-    private CancellationTokenSource cancellationTokenSource;
+    private CancellationTokenSource cancellationTokenSource_attack;
 
     protected virtual void Awake()
     {
@@ -65,27 +65,29 @@ public class EnemyBase : MonoBehaviour
     {
         attackLoopEnd_And_Trigger = false;
 
-        CancellationToken token_attack = cancellationTokenSource.Token;
+        CancellationToken token_attack = cancellationTokenSource_attack.Token;
 
-        OnAttackIntervalStart();
+        OnAttackIntervalStart(token_attack);
         try
         {
             await UniTask.Delay(TimeSpan.FromSeconds(attackInterval), cancellationToken: token_attack);
+            OnAttackIntervalEnd();
+            PerformAttack(token_attack);
         }
         catch (OperationCanceledException)
         {
             return;
         }
-        OnAttackIntervalEnd();
-
-        PerformAttack(token_attack);
-        
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
+
+            cancellationTokenSource_attack = new CancellationTokenSource();
+            playerInRange = true;
+            attackLoopEnd_And_Trigger = true;
             OnPlayerEnter();
         }
     }
@@ -94,6 +96,11 @@ public class EnemyBase : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            attackArea.SetActive(false); // 念のため停止
+            playerInRange = false;
+            attackLoopEnd_And_Trigger = false;
+            cancellationTokenSource_attack?.Cancel();
+            cancellationTokenSource_attack?.Dispose();
             OnPlayerExit();
         }
     }
@@ -105,45 +112,43 @@ public class EnemyBase : MonoBehaviour
         try
         {
             await UniTask.Delay(TimeSpan.FromSeconds(attackDuration), cancellationToken: token_attack);
+            attackArea.SetActive(false);
+
+            OnAttackDurationEnd(); // 拡張
+
+            attackLoopEnd_And_Trigger = true;
         }
         catch (OperationCanceledException)
         {
+            Debug.Log("Cancelled");
             return;
         }
-        attackArea.SetActive(false);
-
-        OnAttackDurationEnd(); // 拡張
-
-        attackLoopEnd_And_Trigger = true;
     }
 
 
     protected virtual void OnPlayerEnter()
     {
-        cancellationTokenSource = new CancellationTokenSource();
-        playerInRange = true;
-        attackLoopEnd_And_Trigger = true;
+        
     }
     protected virtual void OnPlayerExit()
     {
-        attackArea.SetActive(false); // 念のため停止
-        playerInRange = false;
-        attackLoopEnd_And_Trigger = false;
-        cancellationTokenSource?.Cancel();
-        cancellationTokenSource?.Dispose();
+        OnAttackIntervalEnd();
+        OnAttackDurationEnd();
     }
 
     protected virtual void OnDestroy()
     {
-        cancellationTokenSource?.Dispose();
+        Debug.Log("OnDestroy");
+        cancellationTokenSource_attack?.Cancel();
+        cancellationTokenSource_attack?.Dispose();
     }
 
     protected virtual void OnApplicationQuit()
     {
-        cancellationTokenSource?.Dispose();
+        cancellationTokenSource_attack?.Dispose();
     }
 
-    protected virtual void OnAttackIntervalStart() { }
+    protected virtual void OnAttackIntervalStart(CancellationToken token = default) { }
     protected virtual void OnAttackIntervalEnd() { }
     protected virtual void OnAttackDurationStart() { }
     protected virtual void OnAttackDurationEnd() { }
