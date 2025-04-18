@@ -120,7 +120,6 @@ public class EnemyBase : MonoBehaviour
         }
         catch (OperationCanceledException)
         {
-            Debug.Log("Cancelled");
             return;
         }
     }
@@ -138,7 +137,6 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void OnDestroy()
     {
-        Debug.Log("OnDestroy");
         cancellationTokenSource_attack?.Cancel();
         cancellationTokenSource_attack?.Dispose();
     }

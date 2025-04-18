@@ -7,5 +7,7 @@ public class GameLifetimeScope : LifetimeScope
     {
         builder.RegisterComponentInHierarchy<EnemyManager>();
         builder.RegisterComponentInHierarchy<GameManager>();
+        builder.RegisterComponentInHierarchy<GameUIManager>();
+        builder.RegisterComponentInHierarchy<PlayerManager>();
     }
 }

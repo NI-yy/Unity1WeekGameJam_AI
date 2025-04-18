@@ -1,92 +1,85 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using R3;
-using ObservableCollections;
-using VContainer;
-using TMPro;
-using UnityEngine.UI;
+
+public enum GameState
+{
+    BEFORE_START,
+    GAME_PLAYING,
+    GAME_STOP,
+    GAME_END
+}
 
 public class GameManager : MonoBehaviour
 {
-    [Inject]
-    private EnemyManager enemyManager;
+    
 
-    [SerializeField] private TextMeshProUGUI remainTimeText;
-    [SerializeField] private TextMeshProUGUI remainEnemyText;
-    [SerializeField] private Button startButton;
+    public ReactiveProperty<float> time = new ReactiveProperty<float>();
+    public ReactiveProperty<GameState> currentGameState = new ReactiveProperty<GameState>(GameState.BEFORE_START);
+
     [SerializeField] private float timeLimit = 10f;
 
-    private ReactiveProperty<float> time;
-    private bool is_gameStarted = false;
+
+    private bool stateEnter = true;
+
+    public void ChangeGameState(GameState state)
+    {
+        currentGameState.Value = state;
+        stateEnter = true;
+    }
+
 
     private void Start()
     {
-        TestAttach();
+        time.Value = timeLimit;
+    }
 
-        startButton.onClick.AddListener(GameStart);
-
-        enemyManager.enemies
-            .ObserveCountChanged()
-            .Subscribe(count =>
-            {
-                remainEnemyText.text = $"{count} reamin";
-            });
-
-        time = new ReactiveProperty<float>(timeLimit);
-        time
-            .Select(t => Mathf.Max(t, 0).ToString("F1"))
-            .Subscribe(str => remainTimeText.text = str)
-            .AddTo(this);
-        Observable.EveryUpdate()
-            .Subscribe(_ =>
-            {
+    private void Update()
+    {
+        switch (currentGameState.Value)
+        {
+            case GameState.BEFORE_START:
+                break;
+            case GameState.GAME_PLAYING:
+                if (stateEnter)
+                { 
+                    stateEnter = false;
+                    GameStart();
+                    return; 
+                }
                 UpdateTime();
-            })
-            .AddTo(this);
+                break;
+            case GameState.GAME_STOP:
+                break;
+            case GameState.GAME_END:
+                if (stateEnter)
+                {
+                    stateEnter = false;
+                    GameEnd();
+                    return;
+                }
+                break;
+        }
     }
 
     private void UpdateTime()
     {
-        if (is_gameStarted)
+        if (time.Value > 0)
         {
-            if (time.Value > 0)
-            {
-                time.Value -= Time.deltaTime;
-            }
-            else
-            {
-                GameEnd();
-            }
+            time.Value -= Time.deltaTime;
+        }
+        else
+        {
+            ChangeGameState(GameState.GAME_END);
         }
     }
 
-    private void GameStart()
+    public void GameStart()
     {
-        is_gameStarted = true;
+        Debug.Log("Game Start");
     }
 
     private void GameEnd()
     {
-        if (is_gameStarted)
-        {
-            is_gameStarted = false;
-            Debug.Log("Game End");
-        }
-    }
-
-    private void TestAttach()
-    {
-        if(remainTimeText == null)
-        {
-            Debug.LogError("remainTimeTextをアタッチしてください");
-        }
-        else if (remainEnemyText == null)
-        {
-            Debug.LogError("remainEnemyTextをアタッチしてください");
-        }
-        else if (startButton == null)
-        {
-            Debug.LogError("startButtonをアタッチしてください");
-        }
+        Debug.Log("Game End");
     }
 }

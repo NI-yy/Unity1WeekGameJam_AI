@@ -3,6 +3,8 @@ using R3;
 
 public class PlayerController : MonoBehaviour
 {
+    public bool inputEnabled = false;
+
     [SerializeField] private float speed = 5f; // プレイヤーの移動速度 
     [SerializeField] private float parryActiveTime = 0.5f;
     [SerializeField] private int parryCoolFrame = 30;
@@ -21,11 +23,14 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        GetInput();
-        Move();
-        Turn();
-        TriggerParry();
-        Dash();
+        if (inputEnabled)
+        {
+            GetInput();
+            Move();
+            Turn();
+            TriggerParry();
+            Dash();
+        }
     }
 
     private void GetInput()

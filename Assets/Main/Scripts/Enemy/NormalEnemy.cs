@@ -85,13 +85,13 @@ public class NormalEnemy : EnemyBase
         base.OnPlayerExit();
         isMoving = false;
         cancellationTokenSource_move = new CancellationTokenSource();
-        Debug.Log("再開");
+        //Debug.Log("再開");
     }
 
     protected override void OnAttackIntervalStart(CancellationToken token_attack)
     {
         base.OnAttackIntervalStart();
-        Debug.Log("IntervalStart");
+        //Debug.Log("IntervalStart");
 
         attackCicle.transform.localScale = initAttackCircleScale;
         attackCicle.SetActive(true);
@@ -106,7 +106,7 @@ public class NormalEnemy : EnemyBase
         base.OnAttackIntervalEnd();
         attackCicle.SetActive(false);
         attackCicleEnd.SetActive(false);
-        Debug.Log("IntervalEnd");
+        //Debug.Log("IntervalEnd");
     }
 
     protected override void OnDestroy()
