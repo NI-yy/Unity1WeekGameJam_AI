@@ -38,8 +38,16 @@ public class PlayerController : MonoBehaviour
 
     private void Move()
     {
-        // 入力に基づいて移動ベクトルを計算
-        moveVector = new Vector3(hAxis, 0, vAxis).normalized;
+        Vector3 rawInput = new Vector3(hAxis, 0, vAxis);
+        if(rawInput.sqrMagnitude < 0.01f)
+        {
+            moveVector = Vector3.zero;
+        }
+        else
+        {
+            moveVector = rawInput.normalized;
+        }
+        
         // 通常の移動処理
         transform.position += moveVector * speed * Time.deltaTime;
     }

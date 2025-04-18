@@ -10,6 +10,8 @@ public class NormalEnemy : EnemyBase
     [SerializeField] private Animator animator;
     [SerializeField] private float maxMoveRadius = 1.0f;
     [SerializeField] private float moveSpeed = 5.0f;
+    [SerializeField] private GameObject attackCicle;
+    [SerializeField] private GameObject attackCicleEnd;
 
     private Vector3 initPos;
     private bool isMoving = false;
@@ -26,8 +28,9 @@ public class NormalEnemy : EnemyBase
         playerObj = GameObject.FindGameObjectWithTag("Player");
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
         if (!playerInRange)
         {
             if (!isMoving)
@@ -44,8 +47,7 @@ public class NormalEnemy : EnemyBase
     private async UniTask PerformMove()
     {
         isMoving = true;
-        Debug.Log(initPos);
-        Vector3 destination = SpawnRandomPos(initPos, maxMoveRadius);
+        Vector3 destination = ExtractRandomPos(initPos, maxMoveRadius);
         CancellationToken token_move = cancellationTokenSource.Token;
 
         transform.LookAt(destination);
@@ -54,7 +56,7 @@ public class NormalEnemy : EnemyBase
         isMoving = false;
     }
 
-    private Vector3 SpawnRandomPos(Vector3 objectPos, float radius_max, float radius_min = 0.1f)
+    private Vector3 ExtractRandomPos(Vector3 objectPos, float radius_max, float radius_min = 0.1f)
     {
         Vector2 destinationPos = new Vector2();
         float angel = UnityEngine.Random.Range(0, 360f);
@@ -64,33 +66,47 @@ public class NormalEnemy : EnemyBase
         return new Vector3(destinationPos.x, objectPos.y, destinationPos.y);
     }
 
-    protected override void OnAttackStart()
+    protected override void OnAttackDurationStart()
     {
         //animator.SetTrigger("Attack");
     }
 
     protected override void OnPlayerEnter()
     {
+        base.OnPlayerEnter();
         cancellationTokenSource?.Cancel();
         cancellationTokenSource?.Dispose();
     }
 
     protected override void OnPlayerExit()
     {
+        base.OnPlayerExit();
         isMoving = false;
         cancellationTokenSource = new CancellationTokenSource();
         Debug.Log("再開");
     }
 
-    private void OnDestroy()
+    protected override void OnAttackIntervalStart()
     {
-        cancellationTokenSource?.Cancel();
+        base.OnAttackIntervalStart();
+        Debug.Log("IntervalStart");
+    }
+
+    protected override void OnAttackIntervalEnd()
+    {
+        base.OnAttackIntervalStart();
+        Debug.Log("IntervalEnd");
+    }
+
+    protected override void OnDestroy()
+    {
+        base.OnDestroy();
         cancellationTokenSource?.Dispose();
     }
 
-    private void OnApplicationQuit()
+    protected override void OnApplicationQuit()
     {
-        cancellationTokenSource?.Cancel();
+        base.OnApplicationQuit();
         cancellationTokenSource?.Dispose();
     }
 }
