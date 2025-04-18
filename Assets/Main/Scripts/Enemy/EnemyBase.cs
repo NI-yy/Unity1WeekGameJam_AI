@@ -1,7 +1,6 @@
 ﻿using System;
 using UnityEngine;
 using R3;
-using static UnityEngine.EventSystems.EventTrigger;
 
 // protected: そのクラス自身と派生クラスからのみ参照可能
 // virtual: オーバーライド可能
@@ -46,7 +45,6 @@ public class EnemyBase : MonoBehaviour
     {
         _onParriedAndEnemyDestroy.OnNext(this);
         _onParriedAndEnemyDestroy.OnCompleted();
-
         _onParriedAndEnemyDestroy.Dispose();
 
     }
