@@ -5,6 +5,7 @@ using DG.Tweening;
 using System;
 using UnityEngine.Events;
 using System.Collections.Generic;
+using System.Linq;
 
 public class PlayerController : MonoBehaviour
 {
@@ -98,6 +99,22 @@ public class PlayerController : MonoBehaviour
     {
         if (parryButtonDown && canParry)
         {
+            if (inCombat)
+            {
+                // 一番近い敵を探す
+                Collider nearestEnemy = enemiesInRange
+                    .Where(c => c != null) // null チェック（Destroyされた敵など）
+                    .OrderBy(c => Vector3.Distance(transform.localPosition, c.transform.localPosition))
+                    .FirstOrDefault();
+
+                if (nearestEnemy != null)
+                {
+                    Vector3 nearestEnemy_arrangeY = new Vector3(nearestEnemy.transform.localPosition.x, transform.localPosition.y, nearestEnemy.transform.localPosition.z);
+                    transform.LookAt(nearestEnemy_arrangeY);
+                }
+            }
+
+
             parrtyArea.SetActive(true);
             canParry = false;
 
