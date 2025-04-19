@@ -6,6 +6,7 @@ using System;
 using UnityEngine.Events;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
 public class PlayerController : MonoBehaviour
 {
@@ -78,7 +79,7 @@ public class PlayerController : MonoBehaviour
     private void Move()
     {
         Vector3 rawInput = new Vector3(hAxis, 0, vAxis);
-        if(rawInput.sqrMagnitude < 0.01f)
+        if (rawInput.sqrMagnitude < 0.01f)
         {
             moveVector = Vector3.zero;
         }
@@ -86,9 +87,23 @@ public class PlayerController : MonoBehaviour
         {
             moveVector = rawInput.normalized;
         }
-        
-        // 通常の移動処理
-        transform.position += moveVector * speed * Time.deltaTime;
+
+        // 移動先の距離を設定
+        float moveDistance = speed * Time.deltaTime;
+
+        // Raycast で obstacle タグを検出したら移動しない
+        float radius = 2f;
+        Vector3 offset = new Vector3(0f, 2.5f, 0f);
+        if (Physics.SphereCast(transform.position + offset, radius, moveVector, out var hit, moveDistance))
+        {
+            if (hit.collider.CompareTag("Obstacle") || hit.collider.CompareTag("Wall"))
+            {
+                return; // 移動しない
+            }
+        }
+
+        // 移動処理
+        transform.position += moveVector * moveDistance;
     }
 
     private void Turn(){
@@ -134,6 +149,21 @@ public class PlayerController : MonoBehaviour
         if(dashButtonDown && !isDash)
         {
             isDash = true;
+
+            // Raycast で obstacle タグを検出したら移動しない
+            float radius = 2f;
+            Vector3 offset = new Vector3(0f, 2.5f, 0f);
+            if (Physics.SphereCast(transform.position + offset, radius, transform.forward, out var hit, dashDistance))
+            {
+                if (hit.collider.CompareTag("Obstacle") || hit.collider.CompareTag("Wall"))
+                {
+                    Debug.Log("cannot Dash");
+                    isDash = false;
+                    return;
+                }
+            }
+
+
             Vector3 destination = transform.localPosition + transform.forward * dashDistance;
             await transform.DOLocalMove(destination, dashSecound)
                 .SetEase(Ease.Linear)
@@ -159,5 +189,15 @@ public class PlayerController : MonoBehaviour
         {
             enemiesInRange.Remove(other);
         }
+    }
+
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.localPosition + new Vector3(0f, 2.5f, 0f), 2f);
+
+        //Gizmos.color = Color.red;
+        //Gizmos.DrawWireSphere(transform.localPosition + transform.forward * 10f, 5f);
     }
 }
