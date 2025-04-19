@@ -16,6 +16,9 @@ public class PlayerManager : MonoBehaviour
     private GameManager gameManager;
     private PlayerController playerController;
 
+    [SerializeField] private float defaultPlayerSpeed = 5f;
+    [SerializeField] private float middlePlayerSpeed = 10f;
+
     private void Start()
     {
         playerController = transform.GetChild(0).GetComponent<PlayerController>();
@@ -23,6 +26,8 @@ public class PlayerManager : MonoBehaviour
         {
             Debug.LogError("プレイヤーが見つかりません。PlayerManagerの子にPlayer(PlayerController)を配置してください");
         }
+
+        playerController.speed = defaultPlayerSpeed;
 
         // PlayerStateの更新 (CinemChineの切り替えに使用
         playerController.OnCombatState += () => currentPlayerState.Value = PlayerState.COMBAT;
@@ -45,5 +50,17 @@ public class PlayerManager : MonoBehaviour
             {
                 playerController.inputEnabled = false;
             });
+
+        // プレイヤーの進行度によるGameStateの変化
+        Observable.EveryUpdate()
+            .Select(_ => playerController.gameObject.transform.localPosition.z)
+            .Where(z => z > 500f)
+            .Take(1) // 最初に500を超えたとき1回だけ通す
+            .Subscribe(z =>
+            {
+                gameManager.currentGameState.Value = GameState.GAME_PLAYING_MIDDLE_BOSS;
+                playerController.speed = middlePlayerSpeed;
+            })
+            .AddTo(this); // GameObjectが破棄されたときに自動解除
     }
 }

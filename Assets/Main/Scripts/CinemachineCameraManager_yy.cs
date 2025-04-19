@@ -7,9 +7,12 @@ public class CinemachineCameraManager_yy : MonoBehaviour
 {
     [Inject]
     private PlayerManager playerManager;
+    [Inject]
+    private GameManager gameManager;
 
     [SerializeField] private GameObject CinemachineCamera_Move;
     [SerializeField] private GameObject CinemachineCamera_Combat;
+    [SerializeField] private GameObject CinemachineCamera_Move_Middle;
 
     private void Start()
     {
@@ -26,9 +29,18 @@ public class CinemachineCameraManager_yy : MonoBehaviour
             .Where(state => state == PlayerState.COMBAT)
             .Subscribe(_ =>
             {
-                Debug.Log("CombatCameraに変更");
+                //Debug.Log("MoveCameraMiddleに変更");
+                //CinemachineCamera_Move.GetComponent<CinemachineCamera>().Priority = 0;
+                //CinemachineCamera_Combat.GetComponent<CinemachineCamera>().Priority = 1;
+            });
+
+        gameManager.currentGameState
+            .Where(state => state == GameState.GAME_PLAYING_MIDDLE_BOSS)
+            .Subscribe(_ =>
+            {
+                Debug.Log("MoveCamera_Middleに変更");
                 CinemachineCamera_Move.GetComponent<CinemachineCamera>().Priority = 0;
-                CinemachineCamera_Combat.GetComponent<CinemachineCamera>().Priority = 1;
+                CinemachineCamera_Move_Middle.GetComponent<CinemachineCamera>().Priority = 1;
             });
     }
 }

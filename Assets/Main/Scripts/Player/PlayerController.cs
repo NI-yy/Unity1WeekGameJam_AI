@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     public UnityAction OnCombatState;
     public UnityAction OnMoveState;
 
-    [SerializeField] private float speed = 5f; // プレイヤーの移動速度 
+    [HideInInspector] public float speed = 5f; // プレイヤーの移動速度 
     [SerializeField] private float dashDistance = 5f;
     [SerializeField] private float dashSecound = 1f;
     [SerializeField] private float dashCoolTime = 1f;

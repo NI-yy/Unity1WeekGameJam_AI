@@ -5,6 +5,7 @@ public enum GameState
 {
     BEFORE_START,
     GAME_PLAYING,
+    GAME_PLAYING_MIDDLE_BOSS,
     GAME_STOP,
     GAME_OVER,
     GAME_CLEAR
@@ -12,8 +13,6 @@ public enum GameState
 
 public class GameManager : MonoBehaviour
 {
-    
-
     public ReactiveProperty<float> time = new ReactiveProperty<float>();
     public ReactiveProperty<GameState> currentGameState = new ReactiveProperty<GameState>(GameState.BEFORE_START);
 
@@ -47,6 +46,9 @@ public class GameManager : MonoBehaviour
                     GameStart();
                     return; 
                 }
+                UpdateTime();
+                break;
+            case GameState.GAME_PLAYING_MIDDLE_BOSS:
                 UpdateTime();
                 break;
             case GameState.GAME_STOP:
