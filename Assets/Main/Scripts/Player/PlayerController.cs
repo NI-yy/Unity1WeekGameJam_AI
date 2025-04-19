@@ -6,7 +6,6 @@ using System;
 using UnityEngine.Events;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 
 public class PlayerController : MonoBehaviour
 {
@@ -56,12 +55,10 @@ public class PlayerController : MonoBehaviour
             inCombat = hasEnemy;
             if (inCombat)
             {
-                Debug.Log("戦闘");
                 OnCombatState?.Invoke();
             }
             else
             {
-                Debug.Log("移動");
                 OnMoveState?.Invoke();
             }
                
@@ -96,7 +93,7 @@ public class PlayerController : MonoBehaviour
         Vector3 offset = new Vector3(0f, 2.5f, 0f);
         if (Physics.SphereCast(transform.position + offset, radius, moveVector, out var hit, moveDistance))
         {
-            if (hit.collider.CompareTag("Obstacle") || hit.collider.CompareTag("Wall"))
+            if (hit.collider.CompareTag("Obstacle") || hit.collider.CompareTag("Wall") || hit.collider.CompareTag("Water"))
             {
                 return; // 移動しない
             }
@@ -149,27 +146,79 @@ public class PlayerController : MonoBehaviour
         if(dashButtonDown && !isDash)
         {
             isDash = true;
-            Vector3 destination = transform.localPosition + transform.forward * dashDistance;
+            float sphereRadius = 2f;
+            Vector3 castOffset = new Vector3(0f, 2.5f, 0f);
 
+            Vector3 origin = transform.position + castOffset;
+            Vector3 dir = transform.forward;
 
-            // Raycastで障害物に当たったら移動先を変更
-            float radius = 2f;
-            Vector3 offset = new Vector3(0f, 2.5f, 0f);
-            if (Physics.SphereCast(transform.position + offset, radius, transform.forward, out var hit, dashDistance))
+            RaycastHit[] hits = Physics.SphereCastAll(origin, sphereRadius, dir, dashDistance);
+            var ordered = hits.OrderBy(h => h.distance).ToArray();
+
+            RaycastHit? groundHit = null;
+            RaycastHit? nearestObstacle = null;
+            RaycastHit? obstacleHit = null;
+            RaycastHit? wallHit = null;
+            RaycastHit? waterHit = null;
+
+            foreach (var h in ordered)
             {
-                if (hit.collider.CompareTag("Obstacle") || hit.collider.CompareTag("Wall"))
+                if (h.collider.CompareTag("Ground"))
                 {
-                    
-                    float safeDistance = hit.distance - radius;
-                    safeDistance = Mathf.Max(safeDistance, 0f);
-                    destination = transform.localPosition + transform.forward * safeDistance;
+                    Debug.Log("GroundHit");
+                    groundHit = h;
+                }
+                else if (waterHit == null && h.collider.CompareTag("Water"))
+                {
+                    waterHit = h;
+                }
+                else if (h.collider.CompareTag("Obstacle"))
+                {
+                    obstacleHit = h;
+                }
+                else if (h.collider.CompareTag("Wall"))
+                {
+                    wallHit = h;
+                }
+                
+                if(nearestObstacle == null && h.collider.CompareTag("Obstacle") || h.collider.CompareTag("Wall") || h.collider.CompareTag("Water"))
+                {
+                    nearestObstacle = h;
                 }
             }
 
-            await transform.DOLocalMove(destination, dashSecound)
-                .SetEase(Ease.Linear)
-                .ToUniTask(cancellationToken: destroyCancellationToken);
+            // 到達先を計算
+            float safeDistance;
+            if(nearestObstacle.HasValue)
+            {
+                safeDistance = nearestObstacle.Value.distance - sphereRadius;
+                Debug.Log("here1");
+                if (waterHit.HasValue)
+                {
+                    Debug.Log($"here2 {groundHit.Value.distance}, {waterHit.Value.distance}");
+                    if (!wallHit.HasValue && !obstacleHit.HasValue &&
+                        groundHit.Value.distance - waterHit.Value.distance > 0)
+                    {
+                        Debug.Log("here3");
+                        safeDistance = groundHit.Value.distance + sphereRadius;
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log("here4");
+                safeDistance = dashDistance;
+            }
 
+            safeDistance = Mathf.Max(safeDistance, 0f);
+            Vector3 destinationLocal = transform.localPosition + dir * safeDistance;
+
+            // 4) 実際に移動
+            await transform.DOLocalMove(destinationLocal, dashSecound)
+                           .SetEase(Ease.Linear)
+                           .ToUniTask(cancellationToken: destroyCancellationToken);
+
+            // 5) クールタイム
             await UniTask.Delay(TimeSpan.FromSeconds(dashCoolTime), cancellationToken: destroyCancellationToken);
 
             isDash = false;

@@ -76,6 +76,7 @@ public class NormalEnemy : EnemyBase
         base.OnPlayerEnter();
         cancellationTokenSource_move?.Cancel();
         cancellationTokenSource_move?.Dispose();
+        cancellationTokenSource_move = new CancellationTokenSource();
     }
 
     protected override void OnPlayerExit()
@@ -110,12 +111,20 @@ public class NormalEnemy : EnemyBase
     protected override void OnDestroy()
     {
         base.OnDestroy();
-        cancellationTokenSource_move?.Dispose();
+        if(cancellationTokenSource_move != null)
+        {
+            cancellationTokenSource_move.Cancel();
+            cancellationTokenSource_move.Dispose();
+        }
     }
 
-    protected override void OnApplicationQuit()
-    {
-        base.OnApplicationQuit();
-        cancellationTokenSource_move?.Dispose();
-    }
+    //protected override void OnApplicationQuit()
+    //{
+    //    base.OnApplicationQuit();
+    //    if (cancellationTokenSource_move != null)
+    //    {
+    //        cancellationTokenSource_move.Cancel();
+    //        cancellationTokenSource_move.Dispose();
+    //    }
+    //}
 }

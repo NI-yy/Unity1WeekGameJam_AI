@@ -101,6 +101,7 @@ public class EnemyBase : MonoBehaviour
             attackLoopEnd_And_Trigger = false;
             cancellationTokenSource_attack?.Cancel();
             cancellationTokenSource_attack?.Dispose();
+            cancellationTokenSource_attack = new CancellationTokenSource();
             OnPlayerExit();
         }
     }
@@ -137,13 +138,15 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void OnDestroy()
     {
+        cancellationTokenSource_attack?.Cancel();
         cancellationTokenSource_attack?.Dispose();
     }
 
-    protected virtual void OnApplicationQuit()
-    {
-        cancellationTokenSource_attack?.Dispose();
-    }
+    //protected virtual void OnApplicationQuit()
+    //{
+    //    cancellationTokenSource_attack?.Cancel();
+    //    cancellationTokenSource_attack?.Dispose();
+    //}
 
     protected virtual void OnAttackIntervalStart(CancellationToken token = default) { }
     protected virtual void OnAttackIntervalEnd() { }
