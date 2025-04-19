@@ -18,6 +18,7 @@ public class PlayerManager : MonoBehaviour
 
     [SerializeField] private float defaultPlayerSpeed = 5f;
     [SerializeField] private float middlePlayerSpeed = 10f;
+    [SerializeField] private float deistance_To_middle = 500f;
 
     private void Start()
     {
@@ -54,8 +55,8 @@ public class PlayerManager : MonoBehaviour
         // プレイヤーの進行度によるGameStateの変化
         Observable.EveryUpdate()
             .Select(_ => playerController.gameObject.transform.localPosition.z)
-            .Where(z => z > 500f)
-            .Take(1) // 最初に500を超えたとき1回だけ通す
+            .Where(z => z > deistance_To_middle)
+            .Take(1) 
             .Subscribe(z =>
             {
                 gameManager.currentGameState.Value = GameState.GAME_PLAYING_MIDDLE_BOSS;

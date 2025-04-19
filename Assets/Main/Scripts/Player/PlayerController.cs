@@ -149,22 +149,23 @@ public class PlayerController : MonoBehaviour
         if(dashButtonDown && !isDash)
         {
             isDash = true;
+            Vector3 destination = transform.localPosition + transform.forward * dashDistance;
 
-            // Raycast で obstacle タグを検出したら移動しない
+
+            // Raycastで障害物に当たったら移動先を変更
             float radius = 2f;
             Vector3 offset = new Vector3(0f, 2.5f, 0f);
             if (Physics.SphereCast(transform.position + offset, radius, transform.forward, out var hit, dashDistance))
             {
                 if (hit.collider.CompareTag("Obstacle") || hit.collider.CompareTag("Wall"))
                 {
-                    Debug.Log("cannot Dash");
-                    isDash = false;
-                    return;
+                    
+                    float safeDistance = hit.distance - radius;
+                    safeDistance = Mathf.Max(safeDistance, 0f);
+                    destination = transform.localPosition + transform.forward * safeDistance;
                 }
             }
 
-
-            Vector3 destination = transform.localPosition + transform.forward * dashDistance;
             await transform.DOLocalMove(destination, dashSecound)
                 .SetEase(Ease.Linear)
                 .ToUniTask(cancellationToken: destroyCancellationToken);
