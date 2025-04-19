@@ -17,7 +17,6 @@ public class CarController : MonoBehaviour
         if (activated && init)
         {
             init = false;
-            Debug.Log("移動をする");
             transform.parent.gameObject.transform.DOLocalMove(endPos, time_to_move)
                     .SetEase(Ease.Linear)
                     .ToUniTask(cancellationToken: destroyCancellationToken).Forget();

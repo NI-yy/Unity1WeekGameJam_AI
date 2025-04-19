@@ -12,7 +12,6 @@ public class EnemyAttackArea : MonoBehaviour
     {
         if (other.gameObject.CompareTag(playerParryAreaTagName))
         {
-            Debug.Log("パリィ!!!!");
             _onParried.OnNext(Unit.Default);
         }
     }

@@ -165,7 +165,6 @@ public class PlayerController : MonoBehaviour
             {
                 if (h.collider.CompareTag("Ground"))
                 {
-                    Debug.Log("GroundHit");
                     groundHit = h;
                 }
                 else if (waterHit == null && h.collider.CompareTag("Water"))
@@ -192,21 +191,18 @@ public class PlayerController : MonoBehaviour
             if(nearestObstacle.HasValue)
             {
                 safeDistance = nearestObstacle.Value.distance - sphereRadius;
-                Debug.Log("here1");
+
                 if (waterHit.HasValue)
                 {
-                    Debug.Log($"here2 {groundHit.Value.distance}, {waterHit.Value.distance}");
                     if (!wallHit.HasValue && !obstacleHit.HasValue &&
                         groundHit.Value.distance - waterHit.Value.distance > 0)
                     {
-                        Debug.Log("here3");
                         safeDistance = groundHit.Value.distance + sphereRadius;
                     }
                 }
             }
             else
             {
-                Debug.Log("here4");
                 safeDistance = dashDistance;
             }
 

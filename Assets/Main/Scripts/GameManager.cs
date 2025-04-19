@@ -5,7 +5,8 @@ public enum GameState
 {
     BEFORE_START,
     GAME_PLAYING,
-    GAME_PLAYING_MIDDLE_BOSS,
+    GAME_PLAYING_MIDDLE_FASE,
+    GAME_PLAYING_FINAL_FASE,
     GAME_STOP,
     GAME_OVER,
     GAME_CLEAR
@@ -48,7 +49,7 @@ public class GameManager : MonoBehaviour
                 }
                 UpdateTime();
                 break;
-            case GameState.GAME_PLAYING_MIDDLE_BOSS:
+            case GameState.GAME_PLAYING_MIDDLE_FASE:
                 UpdateTime();
                 break;
             case GameState.GAME_STOP:

@@ -13,6 +13,7 @@ public class CinemachineCameraManager_yy : MonoBehaviour
     [SerializeField] private GameObject CinemachineCamera_Move;
     [SerializeField] private GameObject CinemachineCamera_Combat;
     [SerializeField] private GameObject CinemachineCamera_Move_Middle;
+    [SerializeField] private GameObject CinemachineCamera_Move_Final;
 
     private void Start()
     {
@@ -20,7 +21,6 @@ public class CinemachineCameraManager_yy : MonoBehaviour
             .Where(state => state == PlayerState.MOVE)
             .Subscribe(_ =>
             {
-                Debug.Log("MoveCameraに変更");
                 CinemachineCamera_Move.GetComponent<CinemachineCamera>().Priority = 1;
                 CinemachineCamera_Combat.GetComponent<CinemachineCamera>().Priority = 0;
             });
@@ -35,12 +35,20 @@ public class CinemachineCameraManager_yy : MonoBehaviour
             });
 
         gameManager.currentGameState
-            .Where(state => state == GameState.GAME_PLAYING_MIDDLE_BOSS)
+            .Where(state => state == GameState.GAME_PLAYING_MIDDLE_FASE)
             .Subscribe(_ =>
             {
-                Debug.Log("MoveCamera_Middleに変更");
                 CinemachineCamera_Move.GetComponent<CinemachineCamera>().Priority = 0;
                 CinemachineCamera_Move_Middle.GetComponent<CinemachineCamera>().Priority = 1;
+            });
+
+        gameManager.currentGameState
+            .Where(state => state == GameState.GAME_PLAYING_MIDDLE_FASE)
+            .Subscribe(_ =>
+            {
+                CinemachineCamera_Move.GetComponent<CinemachineCamera>().Priority = 0;
+                CinemachineCamera_Move_Middle.GetComponent<CinemachineCamera>().Priority = 0;
+                CinemachineCamera_Move_Final.GetComponent<CinemachineCamera>().Priority = 1;
             });
     }
 }
