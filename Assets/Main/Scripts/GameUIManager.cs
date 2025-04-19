@@ -17,7 +17,8 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI remainEnemyText;
     [SerializeField] private Button startButton;
     [SerializeField] private Button retryButton;
-    [SerializeField] private GameObject gameEndPanel;
+    [SerializeField] private GameObject gameOverPanel;
+    [SerializeField] private GameObject gameCelarPanel;
 
     void Start()
     {
@@ -42,18 +43,6 @@ public class GameUIManager : MonoBehaviour
             })
             .AddTo(this);
 
-
-        // ゲーム終了後UI
-        gameManager.currentGameState
-            .Where(state => state == GameState.GAME_END)
-            .Take(1) // 一度だけ
-            .Subscribe(_ =>
-            {
-                remainEnemyText.gameObject.SetActive(false);
-                remainEnemyText.gameObject.SetActive(false);
-                gameEndPanel.SetActive(true);
-            });
-
         // Retry Button
         retryButton.OnClickAsObservable()
             .Subscribe(_ =>
@@ -61,6 +50,31 @@ public class GameUIManager : MonoBehaviour
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             })
             .AddTo(this);
+
+
+        // ゲームオーバー
+        gameManager.currentGameState
+            .Where(state => state == GameState.GAME_OVER)
+            .Take(1) // 一度だけ
+            .Subscribe(_ =>
+            {
+                remainTimeText.gameObject.SetActive(false);
+                remainEnemyText.gameObject.SetActive(false);
+                retryButton.gameObject.SetActive(true);
+                gameOverPanel.SetActive(true);
+            });
+
+        // ゲームクリア
+        gameManager.currentGameState
+            .Where(state => state == GameState.GAME_CLEAR)
+            .Take(1) // 一度だけ
+            .Subscribe(_ =>
+            {
+                remainTimeText.gameObject.SetActive(false);
+                remainEnemyText.gameObject.SetActive(false);
+                retryButton.gameObject.SetActive(true);
+                gameCelarPanel.SetActive(true);
+            });
     }
 
 }

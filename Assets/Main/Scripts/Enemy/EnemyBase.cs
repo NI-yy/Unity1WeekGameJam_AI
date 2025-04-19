@@ -137,7 +137,6 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void OnDestroy()
     {
-        cancellationTokenSource_attack?.Cancel();
         cancellationTokenSource_attack?.Dispose();
     }
 

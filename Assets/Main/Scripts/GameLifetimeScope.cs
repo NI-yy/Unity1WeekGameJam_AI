@@ -9,5 +9,6 @@ public class GameLifetimeScope : LifetimeScope
         builder.RegisterComponentInHierarchy<GameManager>();
         builder.RegisterComponentInHierarchy<GameUIManager>();
         builder.RegisterComponentInHierarchy<PlayerManager>();
+        builder.RegisterComponentInHierarchy<CinemachineCameraManager_yy>();
     }
 }

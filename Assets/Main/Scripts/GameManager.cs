@@ -6,7 +6,8 @@ public enum GameState
     BEFORE_START,
     GAME_PLAYING,
     GAME_STOP,
-    GAME_END
+    GAME_OVER,
+    GAME_CLEAR
 }
 
 public class GameManager : MonoBehaviour
@@ -50,11 +51,11 @@ public class GameManager : MonoBehaviour
                 break;
             case GameState.GAME_STOP:
                 break;
-            case GameState.GAME_END:
+            case GameState.GAME_OVER:
                 if (stateEnter)
                 {
                     stateEnter = false;
-                    GameEnd();
+                    GameOver();
                     return;
                 }
                 break;
@@ -69,7 +70,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            ChangeGameState(GameState.GAME_END);
+            ChangeGameState(GameState.GAME_OVER);
         }
     }
 
@@ -78,8 +79,8 @@ public class GameManager : MonoBehaviour
         Debug.Log("Game Start");
     }
 
-    private void GameEnd()
+    private void GameOver()
     {
-        Debug.Log("Game End");
+        Debug.Log("Game Over");
     }
 }

@@ -1,11 +1,21 @@
 ﻿using UnityEngine;
 using R3;
+using Cysharp.Threading.Tasks;
+using DG.Tweening;
+using System;
+using UnityEngine.Events;
+using System.Collections.Generic;
 
 public class PlayerController : MonoBehaviour
 {
     public bool inputEnabled = false;
+    public UnityAction OnCombatState;
+    public UnityAction OnMoveState;
 
     [SerializeField] private float speed = 5f; // プレイヤーの移動速度 
+    [SerializeField] private float dashDistance = 5f;
+    [SerializeField] private float dashSecound = 1f;
+    [SerializeField] private float dashCoolTime = 1f;
     [SerializeField] private float parryActiveTime = 0.5f;
     [SerializeField] private int parryCoolFrame = 30;
     [SerializeField] private GameObject parrtyArea;
@@ -14,12 +24,16 @@ public class PlayerController : MonoBehaviour
     private float vAxis; // 垂直方向の入力
 
     private Vector3 moveVector;
+    private Vector3 prev_moveVector;
 
     private bool dashButtonDown;
     private bool parryButtonDown;
 
-    private bool isDodge = false;
+    private bool isDash = false;
     private bool canParry = true;
+
+    private HashSet<Collider> enemiesInRange = new HashSet<Collider>();
+    private bool inCombat = false;
 
     void Update()
     {
@@ -29,7 +43,26 @@ public class PlayerController : MonoBehaviour
             Move();
             Turn();
             TriggerParry();
-            Dash();
+            Dash().Forget();
+        }
+
+        enemiesInRange.RemoveWhere(c => c == null);
+
+        bool hasEnemy = enemiesInRange.Count > 0;
+        if (hasEnemy != inCombat)
+        {
+            inCombat = hasEnemy;
+            if (inCombat)
+            {
+                Debug.Log("戦闘");
+                OnCombatState?.Invoke();
+            }
+            else
+            {
+                Debug.Log("移動");
+                OnMoveState?.Invoke();
+            }
+               
         }
     }
 
@@ -80,17 +113,34 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Dash(){
-        if(dashButtonDown && moveVector != Vector3.zero && !isDodge){
-            speed *= 2;
-            isDodge = true;
+    private async UniTask Dash(){
+        if(dashButtonDown && !isDash)
+        {
+            isDash = true;
+            Vector3 destination = transform.localPosition + transform.forward * dashDistance;
+            await transform.DOLocalMove(destination, dashSecound)
+                .SetEase(Ease.Linear)
+                .ToUniTask(cancellationToken: destroyCancellationToken);
 
-            Invoke("DashOut", 0.4f); // hoge秒後にDashOutメソッドを呼び出す
+            await UniTask.Delay(TimeSpan.FromSeconds(dashCoolTime), cancellationToken: destroyCancellationToken);
+
+            isDash = false;
         }
     }
 
-    private void DashOut(){
-        speed *= 0.5f;
-        isDodge = false;
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            enemiesInRange.Add(other);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            enemiesInRange.Remove(other);
+        }
     }
 }

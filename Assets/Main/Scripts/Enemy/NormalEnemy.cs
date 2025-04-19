@@ -1,6 +1,4 @@
-﻿using System;
-using UnityEngine;
-using R3;
+﻿using UnityEngine;
 using Cysharp.Threading.Tasks;
 using System.Threading;
 using DG.Tweening;
