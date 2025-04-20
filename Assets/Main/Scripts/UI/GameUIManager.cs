@@ -83,7 +83,7 @@ public class GameUIManager : MonoBehaviour
                 retryButton.gameObject.SetActive(true);
                 gameCelarPanel.SetActive(true);
 
-                scoreText.text = $"{Mathf.Min(gameManager.time.Value, 999).ToString("F1")}sec, 4あいさつ！";
+                scoreText.text = $"{Mathf.Min(gameManager.time.Value, 999).ToString("F1")}sec, {enemyManager.parriedCount} あいさつ！";
             });
     }
 

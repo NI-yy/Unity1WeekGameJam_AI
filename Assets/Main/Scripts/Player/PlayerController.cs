@@ -155,12 +155,12 @@ public class PlayerController : MonoBehaviour
         {
             isDash = true;
             float sphereRadius = 2f;
-            Vector3 castOffset = new Vector3(0f, 2.5f, 0f);
+            Vector3 castOffset = new Vector3(0f, 2.5f, -2.0f);
 
             Vector3 origin = transform.position + castOffset;
             Vector3 dir = transform.forward;
 
-            RaycastHit[] hits = Physics.SphereCastAll(origin, sphereRadius, dir, dashDistance);
+            RaycastHit[] hits = Physics.SphereCastAll(origin, sphereRadius, dir, dashDistance + Mathf.Abs(castOffset.z));
             var ordered = hits.OrderBy(h => h.distance).ToArray();
 
             RaycastHit? groundHit = null;
@@ -173,24 +173,31 @@ public class PlayerController : MonoBehaviour
             {
                 if (h.collider.CompareTag("Ground"))
                 {
+                    Debug.Log($"Ground, {h.distance}");
                     groundHit = h;
                 }
                 else if (waterHit == null && h.collider.CompareTag("Water"))
                 {
+                    Debug.Log($"Water, {h.distance}");
                     waterHit = h;
                 }
                 else if (h.collider.CompareTag("Obstacle"))
                 {
+                    Debug.Log($"Obstacle, {h.distance}");
                     obstacleHit = h;
                 }
                 else if (h.collider.CompareTag("Wall"))
                 {
+                    Debug.Log($"Wall, {h.distance}");
                     wallHit = h;
                 }
                 
-                if(nearestObstacle == null && h.collider.CompareTag("Obstacle") || h.collider.CompareTag("Wall") || h.collider.CompareTag("Water"))
+                if(!nearestObstacle.HasValue && (h.collider.CompareTag("Obstacle") || h.collider.CompareTag("Wall") || h.collider.CompareTag("Water")))
                 {
                     nearestObstacle = h;
+                    Debug.Log($"{nearestObstacle == null}, {!nearestObstacle.HasValue}");
+                    Debug.Log($"{!nearestObstacle.HasValue && h.collider.CompareTag("Obstacle") || h.collider.CompareTag("Wall") || h.collider.CompareTag("Water")}");
+                    Debug.Log($"{nearestObstacle.Value.distance}, {h.distance}");
                 }
             }
 
@@ -200,19 +207,23 @@ public class PlayerController : MonoBehaviour
                 float safeDistance;
                 if (nearestObstacle.HasValue)
                 {
-                    safeDistance = nearestObstacle.Value.distance - sphereRadius;
+                    Debug.Log("障害物あり");
+                    safeDistance = nearestObstacle.Value.distance - sphereRadius - Mathf.Abs(castOffset.z);
+                    Debug.Log($"{nearestObstacle.Value.distance}, {sphereRadius}, {safeDistance}");
 
                     if (waterHit.HasValue)
                     {
                         if (!wallHit.HasValue && !obstacleHit.HasValue &&
                             groundHit.Value.distance - waterHit.Value.distance > 0)
                         {
+                            Debug.Log("水飛び越え");
                             safeDistance = groundHit.Value.distance + sphereRadius;
                         }
                     }
                 }
                 else
                 {
+                    Debug.Log("障害物無し");
                     safeDistance = dashDistance;
                 }
 
@@ -262,7 +273,7 @@ public class PlayerController : MonoBehaviour
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.localPosition + new Vector3(0f, 2.5f, 0f), 2f);
+        Gizmos.DrawWireSphere(transform.localPosition + new Vector3(0f, 2.5f, -2.0f), 2f);
 
         //Gizmos.color = Color.red;
         //Gizmos.DrawWireSphere(transform.localPosition + transform.forward * 10f, 5f);

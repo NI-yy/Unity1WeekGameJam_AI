@@ -12,16 +12,17 @@ public class EnemyBase : MonoBehaviour
     public Observable<EnemyBase> onParriedAndEnemyDestroy => _onParriedAndEnemyDestroy;
     private Subject<EnemyBase> _onParriedAndEnemyDestroy = new Subject<EnemyBase>();
 
+    [HideInInspector] public Camera mainCamera;
 
     [SerializeField] protected GameObject attackArea;
     [SerializeField] protected float attackInterval = 2f;
     [SerializeField] protected float attackDuration = 0.3f;
 
     protected bool playerInRange = false;
+    
+
     private bool attackLoopEnd_And_Trigger = false;
-
     private EnemyAttackArea enemyAttackArea;
-
     private CancellationTokenSource cancellationTokenSource_attack;
 
     protected virtual void Awake()

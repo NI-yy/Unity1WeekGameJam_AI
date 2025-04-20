@@ -41,7 +41,11 @@ public class NormalEnemy : EnemyBase
         else
         {
             transform.LookAt(playerObj.transform.position);
+            // パリィの円を常にカメラに向かせる(ビルボード)
+            attackCicle.transform.LookAt(mainCamera.transform);
+            attackCicleEnd.transform.LookAt(mainCamera.transform);
         }
+
     }
 
     private async UniTask PerformMove()
@@ -95,7 +99,12 @@ public class NormalEnemy : EnemyBase
         attackCicle.transform.localScale = initAttackCircleScale;
         attackCicle.SetActive(true);
         attackCicleEnd.SetActive(true);
-        attackCicle.transform.DOScale(attackCicleEnd.transform.localScale, attackInterval)
+        //attackCicle.transform.DOScale(attackCicleEnd.transform.localScale, attackInterval)
+        //    .SetEase(Ease.Linear)
+        //    .ToUniTask(cancellationToken: token_attack);
+
+        // スケールが合わなかったので手動で調整
+        attackCicle.transform.DOScale(new Vector3(5.66f, 5.66f, 5.66f), attackInterval)
             .SetEase(Ease.Linear)
             .ToUniTask(cancellationToken: token_attack);
     }

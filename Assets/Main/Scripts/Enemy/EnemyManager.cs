@@ -15,7 +15,10 @@ public class EnemyManager : MonoBehaviour
     public ObservableList<EnemyBase> enemies = new ObservableList<EnemyBase>();
     public ReactiveProperty<int> parriedCount = new ReactiveProperty<int>();
 
+    [SerializeField] private GameObject parryExplisionPrefab;
+
     private SEManager seManager;
+    private Camera mainCamera;
 
     public void Start()
     {
@@ -37,6 +40,9 @@ public class EnemyManager : MonoBehaviour
             {
                 transform.GetChild(0).gameObject.SetActive(false);
             });
+
+
+        mainCamera = Camera.main;
     }
 
     private void ActivateEnemies()
@@ -53,9 +59,14 @@ public class EnemyManager : MonoBehaviour
                 seManager.PlaySE_Parry();
                 cinemachineCameraManager_yy.ImplusebyParry();
                 parriedCount.Value++;
+
+                Instantiate(parryExplisionPrefab, e.gameObject.transform.localPosition, Quaternion.identity);
+
                 enemies.Remove(e);
                 Destroy(e.gameObject);
             });
+
+            enemy.mainCamera = mainCamera;
         }
     }
 
