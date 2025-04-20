@@ -17,6 +17,7 @@ public class GameUIManager : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI remainTimeText;
     [SerializeField] private TextMeshProUGUI remainEnemyText;
+    [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private Button startButton;
     [SerializeField] private Button retryButton;
     [SerializeField] private GameObject gameOverPanel;
@@ -27,17 +28,16 @@ public class GameUIManager : MonoBehaviour
     void Start()
     {
         SEManager seManager = SEManager.Instance;
-        
+
 
         // テキストUI
-        enemyManager.enemies
-            .ObserveCountChanged()
+        enemyManager.parriedCount
             .Subscribe(count =>
             {
-                remainEnemyText.text = $"{count} reamin";
+                remainEnemyText.text = $"{count} あいさつ";
             });
         gameManager.time
-            .Select(t => Mathf.Max(t, 0).ToString("F1"))
+            .Select(t => Mathf.Min(t, 999).ToString("F1"))
             .Subscribe(str => remainTimeText.text = str)
             .AddTo(this);
 
@@ -82,6 +82,8 @@ public class GameUIManager : MonoBehaviour
                 remainEnemyText.gameObject.SetActive(false);
                 retryButton.gameObject.SetActive(true);
                 gameCelarPanel.SetActive(true);
+
+                scoreText.text = $"{Mathf.Min(gameManager.time.Value, 999).ToString("F1")}sec, 4あいさつ！";
             });
     }
 

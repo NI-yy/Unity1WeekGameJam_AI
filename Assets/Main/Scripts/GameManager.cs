@@ -17,8 +17,6 @@ public class GameManager : MonoBehaviour
     public ReactiveProperty<float> time = new ReactiveProperty<float>();
     public ReactiveProperty<GameState> currentGameState = new ReactiveProperty<GameState>(GameState.BEFORE_START);
 
-    [SerializeField] private float timeLimit = 10f;
-
 
     private bool stateEnter = true;
 
@@ -26,12 +24,6 @@ public class GameManager : MonoBehaviour
     {
         currentGameState.Value = state;
         stateEnter = true;
-    }
-
-
-    private void Start()
-    {
-        time.Value = timeLimit;
     }
 
     private void Update()
@@ -67,14 +59,7 @@ public class GameManager : MonoBehaviour
 
     private void UpdateTime()
     {
-        if (time.Value > 0)
-        {
-            time.Value -= Time.deltaTime;
-        }
-        else
-        {
-            ChangeGameState(GameState.GAME_OVER);
-        }
+        time.Value += Time.deltaTime;
     }
 
     public void GameStart()

@@ -55,6 +55,7 @@ public class EnemyBase : MonoBehaviour
 
     private void OnParriedAndDestroy()
     {
+        Debug.Log("パリィ!!!!");
         _onParriedAndEnemyDestroy.OnNext(this);
         _onParriedAndEnemyDestroy.OnCompleted();
         _onParriedAndEnemyDestroy.Dispose();

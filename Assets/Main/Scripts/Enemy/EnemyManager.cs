@@ -9,9 +9,12 @@ public class EnemyManager : MonoBehaviour
     private GameManager gameManager;
 
     public ObservableList<EnemyBase> enemies = new ObservableList<EnemyBase>();
+    public ReactiveProperty<int> parriedCount = new ReactiveProperty<int>();
 
     public void Start()
     {
+        parriedCount.Value = 0;
+
         gameManager.currentGameState
             .Where(state => state == GameState.GAME_PLAYING)
             .Take(1) // 一度だけ
@@ -40,6 +43,7 @@ public class EnemyManager : MonoBehaviour
             // OnDestroyされたことを購読してリストから除く
             enemy.onParriedAndEnemyDestroy.Subscribe(e =>
             {
+                parriedCount.Value++;
                 enemies.Remove(e);
                 Destroy(e.gameObject);
             });
