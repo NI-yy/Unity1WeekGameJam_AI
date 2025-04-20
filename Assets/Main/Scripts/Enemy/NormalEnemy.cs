@@ -52,7 +52,7 @@ public class NormalEnemy : EnemyBase
 
         transform.LookAt(destination);
         await transform.DOLocalMove(destination, moveSpeed).SetEase(Ease.Linear)
-                 .SetSpeedBased().ToUniTask(cancellationToken: token_move);
+                  .SetSpeedBased().ToUniTask(cancellationToken: token_move);
         isMoving = false;
     }
 

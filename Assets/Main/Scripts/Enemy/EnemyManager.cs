@@ -20,14 +20,6 @@ public class EnemyManager : MonoBehaviour
                 ActivateEnemies();
             });
 
-        enemies
-            .ObserveCountChanged()
-            .Where(count => count == 0)
-            .Subscribe(_ =>
-            {
-                gameManager.ChangeGameState(GameState.GAME_CLEAR);
-            });
-
         gameManager.currentGameState
             .Where(state => state == GameState.GAME_OVER || state == GameState.GAME_CLEAR)
             .Take(1) // 一度だけ

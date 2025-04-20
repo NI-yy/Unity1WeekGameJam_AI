@@ -21,6 +21,7 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private float finalPlayerSpeed = 15f;
     [SerializeField] private float distance_To_middle = 500f;
     [SerializeField] private float distance_To_final = 1500f;
+    [SerializeField] private float distance_Goal = 3080f;
 
     private void Start()
     {
@@ -74,6 +75,18 @@ public class PlayerManager : MonoBehaviour
             {
                 Debug.Log("Final");
                 gameManager.currentGameState.Value = GameState.GAME_PLAYING_FINAL_FASE;
+                playerController.speed = finalPlayerSpeed;
+            })
+            .AddTo(this); // GameObjectが破棄されたときに自動解除
+
+        Observable.EveryUpdate()
+            .Select(_ => playerController.gameObject.transform.localPosition.z)
+            .Where(z => z > distance_Goal)
+            .Take(1)
+            .Subscribe(z =>
+            {
+                Debug.Log("Goal");
+                gameManager.currentGameState.Value = GameState.GAME_CLEAR;
                 playerController.speed = finalPlayerSpeed;
             })
             .AddTo(this); // GameObjectが破棄されたときに自動解除
