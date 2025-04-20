@@ -20,6 +20,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float parryActiveTime = 0.5f;
     [SerializeField] private int parryCoolFrame = 30;
     [SerializeField] private GameObject parrtyArea;
+    [SerializeField] private GameObject dashTrailEffectObj;
 
     private float hAxis; // 水平方向の入力
     private float vAxis; // 垂直方向の入力
@@ -35,6 +36,13 @@ public class PlayerController : MonoBehaviour
 
     private HashSet<Collider> enemiesInRange = new HashSet<Collider>();
     private bool inCombat = false;
+
+    private SEManager seManager;
+
+    private void Start()
+    {
+        seManager = SEManager.Instance;
+    }
 
     void Update()
     {
@@ -186,37 +194,50 @@ public class PlayerController : MonoBehaviour
                 }
             }
 
-            // 到達先を計算
-            float safeDistance;
-            if(nearestObstacle.HasValue)
+            try
             {
-                safeDistance = nearestObstacle.Value.distance - sphereRadius;
-
-                if (waterHit.HasValue)
+                // 到達先を計算
+                float safeDistance;
+                if (nearestObstacle.HasValue)
                 {
-                    if (!wallHit.HasValue && !obstacleHit.HasValue &&
-                        groundHit.Value.distance - waterHit.Value.distance > 0)
+                    safeDistance = nearestObstacle.Value.distance - sphereRadius;
+
+                    if (waterHit.HasValue)
                     {
-                        safeDistance = groundHit.Value.distance + sphereRadius;
+                        if (!wallHit.HasValue && !obstacleHit.HasValue &&
+                            groundHit.Value.distance - waterHit.Value.distance > 0)
+                        {
+                            safeDistance = groundHit.Value.distance + sphereRadius;
+                        }
                     }
                 }
+                else
+                {
+                    safeDistance = dashDistance;
+                }
+
+                safeDistance = Mathf.Max(safeDistance, 0f);
+                Vector3 destinationLocal = transform.localPosition + dir * safeDistance;
+
+                dashTrailEffectObj.SetActive(true);
+                // 4) 実際に移動
+                await transform.DOLocalMove(destinationLocal, dashSecound)
+                               .SetEase(Ease.Linear)
+                               .ToUniTask(cancellationToken: destroyCancellationToken);
+
+                // 5) クールタイム
+                await UniTask.Delay(TimeSpan.FromSeconds(dashCoolTime), cancellationToken: destroyCancellationToken);
+                dashTrailEffectObj.SetActive(false);
+
             }
-            else
+            catch(InvalidOperationException e)
             {
-                safeDistance = dashDistance;
+                Console.WriteLine(e);
             }
 
-            safeDistance = Mathf.Max(safeDistance, 0f);
-            Vector3 destinationLocal = transform.localPosition + dir * safeDistance;
 
-            // 4) 実際に移動
-            await transform.DOLocalMove(destinationLocal, dashSecound)
-                           .SetEase(Ease.Linear)
-                           .ToUniTask(cancellationToken: destroyCancellationToken);
-
-            // 5) クールタイム
-            await UniTask.Delay(TimeSpan.FromSeconds(dashCoolTime), cancellationToken: destroyCancellationToken);
-
+            
+            seManager.PlaySE_Dash();
             isDash = false;
         }
     }
