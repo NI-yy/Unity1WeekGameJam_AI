@@ -5,6 +5,7 @@ public class SEManager : MonoBehaviour
     [SerializeField] private AudioClip SE_click_to_start;
     [SerializeField] private AudioClip SE_ready;
     [SerializeField] private AudioClip SE_go;
+    [SerializeField] private AudioClip SE_parry;
 
     private AudioSource audioSource;
 
@@ -42,5 +43,10 @@ public class SEManager : MonoBehaviour
     public void PlayeSE_Go()
     {
         audioSource.PlayOneShot(SE_go);
+    }
+
+    public void PlaySE_Parry()
+    {
+        audioSource.PlayOneShot(SE_parry);
     }
 }

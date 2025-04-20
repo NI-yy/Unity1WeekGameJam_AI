@@ -15,8 +15,12 @@ public class CinemachineCameraManager_yy : MonoBehaviour
     [SerializeField] private GameObject CinemachineCamera_Move_Middle;
     [SerializeField] private GameObject CinemachineCamera_Move_Final;
 
+    private CinemachineImpulseSource impulseSource;
+
     private void Start()
     {
+        impulseSource = GetComponent<CinemachineImpulseSource>();
+
         playerManager.currentPlayerState
             .Where(state => state == PlayerState.MOVE)
             .Subscribe(_ =>
@@ -50,5 +54,10 @@ public class CinemachineCameraManager_yy : MonoBehaviour
                 CinemachineCamera_Move_Middle.GetComponent<CinemachineCamera>().Priority = 0;
                 CinemachineCamera_Move_Final.GetComponent<CinemachineCamera>().Priority = 1;
             });
+    }
+
+    public void ImplusebyParry()
+    {
+        impulseSource.GenerateImpulse();
     }
 }
