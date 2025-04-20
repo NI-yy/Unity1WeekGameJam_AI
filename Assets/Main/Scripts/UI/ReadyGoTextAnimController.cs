@@ -4,19 +4,20 @@ using TMPro;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
 using System;
+using DG.Tweening.Core.Easing;
 
 public class ReadyGoTextAnimController : MonoBehaviour
 {
-    public RectTransform text1Rect;
-    public CanvasGroup text1CanvasGroup;
-    public RectTransform text2Rect;
-    public CanvasGroup text2CanvasGroup;
+    [SerializeField] private RectTransform text1Rect;
+    [SerializeField] private CanvasGroup text1CanvasGroup;
+    [SerializeField] private RectTransform text2Rect;
+    [SerializeField] private CanvasGroup text2CanvasGroup;
+    [SerializeField] private Vector3 startPos;
+    [SerializeField] private Vector3 endPos;
+    [SerializeField] private Vector3 startScale;
+    [SerializeField] private Vector3 endScale;
 
-    public Vector3 startPos;
-    public Vector3 endPos;
-
-    public Vector3 startScale;
-    public Vector3 endScale;
+    private SEManager seManager;
 
     public async UniTask StartAnimation()
     {
@@ -25,7 +26,10 @@ public class ReadyGoTextAnimController : MonoBehaviour
 
     private async UniTask AnimateTexts()
     {
+        seManager = SEManager.Instance;
+
         // Text1 移動
+        seManager.PlaySE_Ready();
         text1Rect.anchoredPosition = startPos;
         await text1Rect.DOAnchorPos(endPos, 0.5f).SetEase(Ease.OutCubic).AsyncWaitForCompletion();
 
@@ -38,6 +42,7 @@ public class ReadyGoTextAnimController : MonoBehaviour
         text2CanvasGroup.gameObject.SetActive(true);
 
         // Text2 スケール変更
+        seManager.PlayeSE_Go();
         text2Rect.localScale = startScale;
         await text2Rect.DOScale(endScale, 0.5f).SetEase(Ease.OutBack).AsyncWaitForCompletion();
 

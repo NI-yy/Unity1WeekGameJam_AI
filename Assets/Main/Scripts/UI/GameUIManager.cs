@@ -6,6 +6,7 @@ using TMPro;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
+using System;
 
 public class GameUIManager : MonoBehaviour
 {
@@ -20,10 +21,14 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] private Button retryButton;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject gameCelarPanel;
+    [SerializeField] private ClickToStartTextAnimController clickToStartTextAnimController;
     [SerializeField] private ReadyGoTextAnimController readyGoTextAnimController;
 
     void Start()
     {
+        SEManager seManager = SEManager.Instance;
+        
+
         // テキストUI
         enemyManager.enemies
             .ObserveCountChanged()
@@ -40,6 +45,8 @@ public class GameUIManager : MonoBehaviour
         startButton.OnClickAsObservable()
             .Subscribe(_ =>
             {
+                seManager.PlaySE_ClickToStart();
+                clickToStartTextAnimController.OnClicked();
                 TriggerReadyGoAnim_and_GameStart().Forget();
             })
             .AddTo(this);
@@ -81,6 +88,8 @@ public class GameUIManager : MonoBehaviour
     private async UniTask TriggerReadyGoAnim_and_GameStart()
     {
         
+        await UniTask.Delay(TimeSpan.FromSeconds(0.5f), cancellationToken: destroyCancellationToken);
+
         startButton.gameObject.SetActive(false);
         readyGoTextAnimController.gameObject.SetActive(true);
         await readyGoTextAnimController.StartAnimation();
