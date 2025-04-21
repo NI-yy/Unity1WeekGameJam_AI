@@ -10,6 +10,7 @@ public class NormalEnemy : EnemyBase
     [SerializeField] private float moveSpeed = 5.0f;
     [SerializeField] private GameObject attackCicle;
     [SerializeField] private GameObject attackCicleEnd;
+    
 
     private Vector3 initPos;
     private Vector3 initAttackCircleScale;

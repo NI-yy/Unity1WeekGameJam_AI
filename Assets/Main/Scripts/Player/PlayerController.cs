@@ -173,31 +173,31 @@ public class PlayerController : MonoBehaviour
             {
                 if (h.collider.CompareTag("Ground"))
                 {
-                    Debug.Log($"Ground, {h.distance}");
+                    //Debug.Log($"Ground, {h.distance}");
                     groundHit = h;
                 }
                 else if (waterHit == null && h.collider.CompareTag("Water"))
                 {
-                    Debug.Log($"Water, {h.distance}");
+                    //Debug.Log($"Water, {h.distance}");
                     waterHit = h;
                 }
                 else if (h.collider.CompareTag("Obstacle"))
                 {
-                    Debug.Log($"Obstacle, {h.distance}");
+                    //Debug.Log($"Obstacle, {h.distance}");
                     obstacleHit = h;
                 }
                 else if (h.collider.CompareTag("Wall"))
                 {
-                    Debug.Log($"Wall, {h.distance}");
+                    //Debug.Log($"Wall, {h.distance}");
                     wallHit = h;
                 }
                 
                 if(!nearestObstacle.HasValue && (h.collider.CompareTag("Obstacle") || h.collider.CompareTag("Wall") || h.collider.CompareTag("Water")))
                 {
                     nearestObstacle = h;
-                    Debug.Log($"{nearestObstacle == null}, {!nearestObstacle.HasValue}");
-                    Debug.Log($"{!nearestObstacle.HasValue && h.collider.CompareTag("Obstacle") || h.collider.CompareTag("Wall") || h.collider.CompareTag("Water")}");
-                    Debug.Log($"{nearestObstacle.Value.distance}, {h.distance}");
+                    //Debug.Log($"{nearestObstacle == null}, {!nearestObstacle.HasValue}");
+                    //Debug.Log($"{!nearestObstacle.HasValue && h.collider.CompareTag("Obstacle") || h.collider.CompareTag("Wall") || h.collider.CompareTag("Water")}");
+                    //Debug.Log($"{nearestObstacle.Value.distance}, {h.distance}");
                 }
             }
 
@@ -207,23 +207,23 @@ public class PlayerController : MonoBehaviour
                 float safeDistance;
                 if (nearestObstacle.HasValue)
                 {
-                    Debug.Log("障害物あり");
+                    //Debug.Log("障害物あり");
                     safeDistance = nearestObstacle.Value.distance - sphereRadius - Mathf.Abs(castOffset.z);
-                    Debug.Log($"{nearestObstacle.Value.distance}, {sphereRadius}, {safeDistance}");
+                    //Debug.Log($"{nearestObstacle.Value.distance}, {sphereRadius}, {safeDistance}");
 
                     if (waterHit.HasValue)
                     {
                         if (!wallHit.HasValue && !obstacleHit.HasValue &&
                             groundHit.Value.distance - waterHit.Value.distance > 0)
                         {
-                            Debug.Log("水飛び越え");
+                            //Debug.Log("水飛び越え");
                             safeDistance = groundHit.Value.distance + sphereRadius;
                         }
                     }
                 }
                 else
                 {
-                    Debug.Log("障害物無し");
+                    //Debug.Log("障害物無し");
                     safeDistance = dashDistance;
                 }
 

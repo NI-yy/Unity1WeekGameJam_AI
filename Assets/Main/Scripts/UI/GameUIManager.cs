@@ -7,6 +7,8 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using Cysharp.Threading.Tasks;
 using System;
+using unityroom.Api;
+using UnityEngine.EventSystems;
 
 public class GameUIManager : MonoBehaviour
 {
@@ -20,9 +22,11 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI scoreText;
     [SerializeField] private Button startButton;
     [SerializeField] private Button retryButton;
+    [SerializeField] private Button reloadButton;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject gameCelarPanel;
     [SerializeField] private ClickToStartTextAnimController clickToStartTextAnimController;
+    [SerializeField] private ClickToStartTextAnimController retryTextAnimController;
     [SerializeField] private ReadyGoTextAnimController readyGoTextAnimController;
 
     void Start()
@@ -38,7 +42,11 @@ public class GameUIManager : MonoBehaviour
             });
         gameManager.time
             .Select(t => Mathf.Min(t, 999).ToString("F1"))
-            .Subscribe(str => remainTimeText.text = str)
+            .Subscribe(str =>
+            {
+                remainTimeText.text = str;
+                //Debug.Log(str);
+            })
             .AddTo(this);
 
         // Start Button
@@ -55,6 +63,17 @@ public class GameUIManager : MonoBehaviour
         retryButton.OnClickAsObservable()
             .Subscribe(_ =>
             {
+                seManager.PlaySE_ClickToStart();
+                retryTextAnimController.OnClicked();
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            })
+            .AddTo(this);
+
+        // Reload Button
+        reloadButton.OnClickAsObservable()
+            .Subscribe(_ =>
+            {
+                seManager.PlaySE_ClickToStart();
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             })
             .AddTo(this);
@@ -80,10 +99,17 @@ public class GameUIManager : MonoBehaviour
             {
                 remainTimeText.gameObject.SetActive(false);
                 remainEnemyText.gameObject.SetActive(false);
+                reloadButton.gameObject.SetActive(false);
+
                 retryButton.gameObject.SetActive(true);
                 gameCelarPanel.SetActive(true);
 
                 scoreText.text = $"{Mathf.Min(gameManager.time.Value, 999).ToString("F1")}sec, {enemyManager.parriedCount} あいさつ！";
+
+                if(enemyManager.parriedCount.Value == 51)
+                {
+                    UnityroomApiClient.Instance.SendScore(1, gameManager.time.Value, ScoreboardWriteMode.HighScoreAsc);
+                }
             });
     }
 
@@ -94,6 +120,7 @@ public class GameUIManager : MonoBehaviour
 
         startButton.gameObject.SetActive(false);
         readyGoTextAnimController.gameObject.SetActive(true);
+        reloadButton.gameObject.SetActive(true);
         await readyGoTextAnimController.StartAnimation();
         gameManager.ChangeGameState(GameState.GAME_PLAYING);
     }

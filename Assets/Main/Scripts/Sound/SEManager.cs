@@ -46,9 +46,9 @@ public class SEManager : MonoBehaviour
         audioSource.PlayOneShot(SE_go);
     }
 
-    public void PlaySE_Parry()
+    public void PlaySE_Parry(float volume = 1.0f)
     {
-        audioSource.PlayOneShot(SE_parry);
+        audioSource.PlayOneShot(SE_parry, volume);
     }
 
     public void PlaySE_Dash()

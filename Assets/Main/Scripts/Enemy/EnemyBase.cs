@@ -11,7 +11,7 @@ public class EnemyBase : MonoBehaviour
 {
     public Observable<EnemyBase> onParriedAndEnemyDestroy => _onParriedAndEnemyDestroy;
     private Subject<EnemyBase> _onParriedAndEnemyDestroy = new Subject<EnemyBase>();
-
+    public float parrySEVolume = 1.0f;
     [HideInInspector] public Camera mainCamera;
 
     [SerializeField] protected GameObject attackArea;
@@ -56,10 +56,10 @@ public class EnemyBase : MonoBehaviour
 
     private void OnParriedAndDestroy()
     {
-        Debug.Log("パリィ!!!!");
+        //Debug.Log("パリィ!!!!");
         _onParriedAndEnemyDestroy.OnNext(this);
         _onParriedAndEnemyDestroy.OnCompleted();
-        _onParriedAndEnemyDestroy.Dispose();
+        //_onParriedAndEnemyDestroy.Dispose();
 
     }
 

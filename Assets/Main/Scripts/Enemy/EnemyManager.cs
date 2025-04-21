@@ -14,12 +14,13 @@ public class EnemyManager : MonoBehaviour
 
     public ObservableList<EnemyBase> enemies = new ObservableList<EnemyBase>();
     public ReactiveProperty<int> parriedCount = new ReactiveProperty<int>();
+    [HideInInspector] public int Enemies_num = 0;
 
     [SerializeField] private GameObject parryExplisionPrefab;
 
     private SEManager seManager;
     private Camera mainCamera;
-
+    
     public void Start()
     {
         seManager = SEManager.Instance;
@@ -56,7 +57,7 @@ public class EnemyManager : MonoBehaviour
             // OnDestroy=パリィされたことを購読してリストから除く
             enemy.onParriedAndEnemyDestroy.Subscribe(e =>
             {
-                seManager.PlaySE_Parry();
+                seManager.PlaySE_Parry(e.parrySEVolume);
                 cinemachineCameraManager_yy.ImplusebyParry();
                 parriedCount.Value++;
 
@@ -67,7 +68,10 @@ public class EnemyManager : MonoBehaviour
             });
 
             enemy.mainCamera = mainCamera;
+            Enemies_num++;
         }
+
+        Debug.Log($"{Enemies_num}体");
     }
 
 }

@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using R3;
+using unityroom.Api;
+using VContainer;
 
 public enum GameState
 {
@@ -14,6 +16,7 @@ public enum GameState
 
 public class GameManager : MonoBehaviour
 {
+
     public ReactiveProperty<float> time = new ReactiveProperty<float>();
     public ReactiveProperty<GameState> currentGameState = new ReactiveProperty<GameState>(GameState.BEFORE_START);
 
@@ -44,6 +47,9 @@ public class GameManager : MonoBehaviour
             case GameState.GAME_PLAYING_MIDDLE_FASE:
                 UpdateTime();
                 break;
+            case GameState.GAME_PLAYING_FINAL_FASE:
+                UpdateTime();
+                break;
             case GameState.GAME_STOP:
                 break;
             case GameState.GAME_OVER:
@@ -51,6 +57,15 @@ public class GameManager : MonoBehaviour
                 {
                     stateEnter = false;
                     GameOver();
+                    return;
+                }
+                break;
+
+            case GameState.GAME_CLEAR:
+                if (stateEnter)
+                {
+                    stateEnter = false;
+                    GameClear();
                     return;
                 }
                 break;
@@ -70,5 +85,10 @@ public class GameManager : MonoBehaviour
     private void GameOver()
     {
         Debug.Log("Game Over");
+    }
+
+    private void GameClear()
+    {
+        
     }
 }
