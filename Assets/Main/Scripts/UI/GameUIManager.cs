@@ -23,11 +23,18 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] private Button startButton;
     [SerializeField] private Button retryButton;
     [SerializeField] private Button reloadButton;
+    [SerializeField] private Button settingButton;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject gameCelarPanel;
+    [SerializeField] private GameObject settingPanel;
+    [SerializeField] private Sprite setting_img;
+    [SerializeField] private Sprite seting_close_img;
     [SerializeField] private ClickToStartTextAnimController clickToStartTextAnimController;
-    [SerializeField] private ClickToStartTextAnimController retryTextAnimController;
+    [SerializeField] private ClickToStartTextAnimController retryButtonAnimController;
+    [SerializeField] private ClickToStartTextAnimController settingButtonAnimController;
     [SerializeField] private ReadyGoTextAnimController readyGoTextAnimController;
+
+    private bool setting_panel_close = true;
 
     void Start()
     {
@@ -64,7 +71,7 @@ public class GameUIManager : MonoBehaviour
             .Subscribe(_ =>
             {
                 seManager.PlaySE_ClickToStart();
-                retryTextAnimController.OnClicked();
+                retryButtonAnimController.OnClicked();
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             })
             .AddTo(this);
@@ -75,6 +82,32 @@ public class GameUIManager : MonoBehaviour
             {
                 seManager.PlaySE_ClickToStart();
                 SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+            })
+            .AddTo(this);
+
+        // Setting Button
+        settingButton.OnClickAsObservable()
+            .Subscribe(_ =>
+            {
+                seManager.PlaySE_ClickToStart();
+                settingButtonAnimController.OnClicked();
+
+                if (setting_panel_close)
+                {
+                    startButton.gameObject.SetActive(false);
+
+                    settingPanel.SetActive(true);
+                    settingButton.gameObject.GetComponent<Image>().sprite = seting_close_img;
+                    setting_panel_close = false;
+                }
+                else
+                {
+                    startButton.gameObject.SetActive(true);
+
+                    settingPanel.SetActive(false);
+                    settingButton.gameObject.GetComponent<Image>().sprite = setting_img;
+                    setting_panel_close = true;
+                }
             })
             .AddTo(this);
 
@@ -120,6 +153,7 @@ public class GameUIManager : MonoBehaviour
 
         startButton.gameObject.SetActive(false);
         readyGoTextAnimController.gameObject.SetActive(true);
+        settingButton.gameObject.SetActive(false);
         reloadButton.gameObject.SetActive(true);
         await readyGoTextAnimController.StartAnimation();
         gameManager.ChangeGameState(GameState.GAME_PLAYING);

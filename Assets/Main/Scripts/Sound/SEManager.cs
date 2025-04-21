@@ -8,6 +8,7 @@ public class SEManager : MonoBehaviour
     [SerializeField] private AudioClip SE_parry;
     [SerializeField] private AudioClip SE_dash;
 
+    [HideInInspector] public float volume_value = 0.5f;
     private AudioSource audioSource;
 
     public static SEManager Instance
@@ -31,6 +32,11 @@ public class SEManager : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
+    private void Update()
+    {
+        audioSource.volume = volume_value;
+    }
+
     public void PlaySE_ClickToStart()
     {
         audioSource.PlayOneShot(SE_click_to_start);
@@ -48,7 +54,7 @@ public class SEManager : MonoBehaviour
 
     public void PlaySE_Parry(float volume = 1.0f)
     {
-        audioSource.PlayOneShot(SE_parry, volume);
+        audioSource.PlayOneShot(SE_parry, volume_value * volume);
     }
 
     public void PlaySE_Dash()

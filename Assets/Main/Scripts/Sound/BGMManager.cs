@@ -2,6 +2,11 @@
 
 public class BGMManager : MonoBehaviour
 {
+
+    [HideInInspector] public float volume_value = 0.5f;
+
+    private AudioSource audioSource;
+
     public static BGMManager Instance
     {
         get; private set;
@@ -16,5 +21,16 @@ public class BGMManager : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+
+    private void Start()
+    {
+        audioSource = GetComponent<AudioSource>();
+    }
+
+    private void Update()
+    {
+        audioSource.volume = volume_value;
     }
 }
