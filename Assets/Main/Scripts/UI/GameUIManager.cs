@@ -113,16 +113,16 @@ public class GameUIManager : MonoBehaviour
 
 
         // ゲームオーバー
-        gameManager.currentGameState
-            .Where(state => state == GameState.GAME_OVER)
-            .Take(1) // 一度だけ
-            .Subscribe(_ =>
-            {
-                remainTimeText.gameObject.SetActive(false);
-                remainEnemyText.gameObject.SetActive(false);
-                retryButton.gameObject.SetActive(true);
-                gameOverPanel.SetActive(true);
-            });
+        //gameManager.currentGameState
+        //    .Where(state => state == GameState.GAME_OVER)
+        //    .Take(1) // 一度だけ
+        //    .Subscribe(_ =>
+        //    {
+        //        remainTimeText.gameObject.SetActive(false);
+        //        remainEnemyText.gameObject.SetActive(false);
+        //        retryButton.gameObject.SetActive(true);
+        //        gameOverPanel.SetActive(true);
+        //    });
 
         // ゲームクリア
         gameManager.currentGameState
